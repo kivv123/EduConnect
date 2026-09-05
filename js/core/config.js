@@ -1,16 +1,9 @@
-/**
- * EduConnect - API Configuration
- * XAMPP project path:
- * http://localhost:90/BEWD/educonnect/
- */
-
 (function () {
 
     // IMPORTANT:
     // This is the actual XAMPP project path.
-    const BASE_PATH = "/BEWD/educonnect";
-
-    const API_BASE = `${BASE_PATH}/backend/api`;
+const BASE_PATH = "/BEWD/educonnect";
+const API_BASE = `${window.location.origin}${BASE_PATH}/backend/api`;
 
     window.API_CONFIG = {
 
