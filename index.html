@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduConnect - Educational Opportunity & University Discovery Platform</title>
+  <link rel="icon" type="image/png" href="educonnect.jpg">
+  <meta name="description" content="Discover global universities, intakes, scholarships, bootcamps, internships, seminars, and competitions on EduConnect." />
+  <meta property="og:title" content="EduConnect - Educational Opportunity & University Discovery Platform" />
+  <meta property="og:description" content="Discover global universities, intakes, scholarships, bootcamps, internships, seminars, and competitions on EduConnect." />
+  <meta property="og:type" content="website" />
+
+  <!-- Bootstrap 5.3.3 CSS & Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <!-- Platform Custom Styles -->
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+
+  <!-- Dynamic Navigation Bar (rendered by js/core/app.js) -->
+  <div id="mainNavbar"></div>
+
+  <!-- Hero Section -->
+  <section class="hero-wrapper text-white py-5 py-lg-6">
+    <div class="container py-4">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-7 text-center text-lg-start">
+          <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill bg-white bg-opacity-10 border border-white border-opacity-15 mb-4 text-xs tracking-wider text-uppercase">
+            <span class="badge bg-primary">Global Portal</span>
+            <span>Over 1,200+ Scholarships & Programs</span>
+          </div>
+
+          <h1 class="display-4 fw-extrabold text-white mb-3 tracking-tight lh-sm">
+            Unlock Your Future in <span class="text-primary" style="color: #60a5fa !important;">Global Education</span>
+          </h1>
+          <p class="lead text-light text-opacity-75 mb-4 lh-base" style="max-width: 600px;">
+            Discover accredited universities, upcoming intake deadlines, fully funded scholarships, STEM fellowships, industry internships, and international competitions.
+          </p>
+
+          <!-- Quick Search Bar -->
+          <div class="card p-2 p-md-2.5 shadow-lg border-0 rounded-4 bg-white mb-3">
+            <form action="pages/opportunities.html" method="GET" class="d-flex flex-column flex-md-row gap-2">
+              <div class="input-group input-group-lg border-0 flex-grow-1">
+                <span class="input-group-text bg-transparent border-0 text-muted ps-3">
+                  <i class="bi bi-search"></i>
+                </span>
+                <input type="text" name="search" class="form-control border-0 shadow-none fs-6" placeholder="Search scholarships, courses, universities, or keywords..." />
+              </div>
+              <button type="submit" class="btn btn-primary px-4 py-2.5 rounded-3 fw-semibold d-flex align-items-center justify-content-center gap-2">
+                <span>Explore</span>
+                <i class="bi bi-arrow-right"></i>
+              </button>
+            </form>
+          </div>
+
+          <!-- Quick Search Tags -->
+          <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start gap-2 text-xs text-light text-opacity-75">
+            <span class="text-white fw-semibold">Popular:</span>
+            <a href="pages/opportunities.html?category=1" class="badge bg-white bg-opacity-10 text-white text-decoration-none px-2.5 py-1.5 rounded-pill hover-primary">Full Scholarships</a>
+            <a href="pages/opportunities.html?category=2" class="badge bg-white bg-opacity-10 text-white text-decoration-none px-2.5 py-1.5 rounded-pill hover-primary">Python Bootcamp</a>
+            <a href="pages/opportunities.html?category=3" class="badge bg-white bg-opacity-10 text-white text-decoration-none px-2.5 py-1.5 rounded-pill hover-primary">AI Internships</a>
+            <a href="pages/universities.html" class="badge bg-white bg-opacity-10 text-white text-decoration-none px-2.5 py-1.5 rounded-pill hover-primary">Fall Intakes</a>
+          </div>
+        </div>
+
+        <div class="col-lg-5 d-none d-lg-block">
+          <div class="position-relative">
+            <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80" alt="Students learning" class="img-fluid rounded-4 shadow-lg border border-white border-opacity-10" />
+            <div class="position-absolute bottom-0 start-0 m-4 p-3 bg-dark bg-opacity-80 backdrop-blur rounded-3 border border-white border-opacity-15 text-white" style="backdrop-filter: blur(12px);">
+              <div class="d-flex align-items-center gap-3">
+                <div class="bg-success text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                  <i class="bi bi-mortarboard fs-5"></i>
+                </div>
+                <div>
+                  <div class="fw-bold fs-6">$2.4M+ Awarded</div>
+                  <div class="text-xs text-light text-opacity-75">Merit Grants Facilitated in 2025</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories Discovery Row -->
+  <section class="py-5 bg-white border-bottom">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+          <span class="text-primary fw-semibold small text-uppercase tracking-wider">Opportunity Pathways</span>
+          <h2 class="h3 fw-bold text-dark mt-1 mb-0">Browse by Category</h2>
+        </div>
+        <a href="pages/opportunities.html" class="text-primary text-decoration-none fw-semibold small d-flex align-items-center gap-1">
+          <span>View All</span>
+          <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="row g-3" id="homeCategoriesContainer">
+        <!-- Injected via Home Script -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Opportunities Section -->
+  <section class="py-5 bg-light">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+          <span class="text-primary fw-semibold small text-uppercase tracking-wider">Curated Selections</span>
+          <h2 class="h3 fw-bold text-dark mt-1 mb-0">Featured Opportunities</h2>
+          <p class="text-secondary small mb-0 mt-1">Handpicked scholarships, certifications, and industry internships.</p>
+        </div>
+        <a href="pages/opportunities.html" class="btn btn-outline-primary btn-sm px-3 fw-semibold">
+          Explore All (8+)
+        </a>
+      </div>
+
+      <div class="row g-4" id="homeOpportunitiesContainer">
+        <!-- Injected via OpportunityService -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Universities & Intakes Spotlight -->
+  <section class="py-5 bg-white border-top border-bottom">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+          <span class="text-primary fw-semibold small text-uppercase tracking-wider">Partner Institutions</span>
+          <h2 class="h3 fw-bold text-dark mt-1 mb-0">Top Universities & Upcoming Intakes</h2>
+          <p class="text-secondary small mb-0 mt-1">Connect with world-ranked universities currently accepting international applicants.</p>
+        </div>
+        <a href="pages/universities.html" class="btn btn-outline-secondary btn-sm px-3 fw-semibold">
+          University Directory
+        </a>
+      </div>
+
+      <div class="row g-4" id="homeUniversitiesContainer">
+        <!-- Injected via UniversityService -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Upcoming Seminars & Workshops -->
+  <section class="py-5 bg-light">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+          <span class="text-primary fw-semibold small text-uppercase tracking-wider">Live Learning</span>
+          <h2 class="h3 fw-bold text-dark mt-1 mb-0">Seminars, Workshops & Masterclasses</h2>
+          <p class="text-secondary small mb-0 mt-1">Free virtual symposiums and interactive tech workshops led by international faculty.</p>
+        </div>
+      </div>
+
+      <div class="row g-4" id="homeEventsContainer">
+        <!-- Injected via EventService -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture / Future Backend Callout Banner -->
+  <section class="py-5 bg-dark text-white">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+          <div class="d-flex align-items-center gap-2 text-warning small fw-bold text-uppercase mb-2">
+            <i class="bi bi-layers-fill"></i>
+            <span>Architecture & Migration Preparedness</span>
+          </div>
+          <h3 class="fw-bold text-white mb-2">Built for Seamless PHP & MySQL Backend Integration</h3>
+          <p class="text-secondary small mb-0 lh-base">
+            This platform adheres strictly to separation of UI and Data. All mock records (Users, Opportunities, Universities, Events, Applications) are mapped to 3NF MySQL schemas. When deploying on XAMPP/phpMyAdmin, simply replace the service endpoints with PHP REST handlers — no UI alterations required.
+          </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+          <a href="login.html" class="btn btn-primary px-4 py-2.5 fw-semibold shadow-sm">
+            <i class="bi bi-person-check-fill me-1"></i>Test Platform Personas
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dynamic Footer (rendered by js/core/app.js) -->
+  <div id="mainFooter"></div>
+
+  <!-- Opportunity Detail Modal -->
+  <div class="modal fade" id="opportunityDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-header border-bottom py-3 px-4 bg-light">
+          <h5 class="modal-title fw-bold text-dark fs-6" id="opDetailModalTitle">Opportunity Overview</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4" id="opDetailModalBody">
+          <!-- Dynamic Content -->
+        </div>
+        <div class="modal-footer border-top py-2.5 px-4 bg-light d-flex justify-content-between">
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-sm btn-primary px-4 fw-semibold" id="opDetailModalApplyBtn">Proceed to Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Submission Modal -->
+  <div class="modal fade" id="applyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-header border-bottom py-3 px-4 bg-primary text-white">
+          <h5 class="modal-title fw-bold fs-6">Submit Application</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="applicationForm">
+          <div class="modal-body p-4">
+            <input type="hidden" id="applyOpportunityId" />
+            <div class="p-2.5 bg-light rounded border mb-3 text-xs">
+              <span class="text-muted d-block">Applying for:</span>
+              <strong class="text-dark fs-6" id="applyOpportunityTitle"></strong>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-dark">Applicant Full Name</label>
+              <input type="text" class="form-control form-control-sm" id="applyApplicantName" readonly />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-dark">Email Address</label>
+              <input type="email" class="form-control form-control-sm" id="applyApplicantEmail" readonly />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-dark">Resume / Portfolio Link</label>
+              <input type="url" class="form-control form-control-sm" id="applyResumeLink" required />
+              <div class="form-text text-xs">Link to PDF CV on Google Drive, GitHub, or LinkedIn.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-dark">Statement of Interest & Qualifications</label>
+              <textarea class="form-control form-control-sm" id="applyStatement" rows="4" placeholder="Briefly state your academic background, career goals, and why you are applying..." required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer border-top py-2.5 px-4 bg-light d-flex justify-content-between">
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-sm btn-primary px-4 fw-semibold" id="applySubmitBtn">Submit Application</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- 1. Data Layer -->
+  <script src="./js/data/mock-users.js"></script>
+  <script src="./js/data/mock-categories.js"></script>
+  <script src="./js/data/mock-opportunities.js"></script>
+  <script src="./js/data/mock-universities.js"></script>
+  <script src="./js/data/mock-events.js"></script>
+  <script src="./js/data/mock-applications.js"></script>
+
+  <!-- 2. Core Layer -->
+  <script src="./js/core/storage.js"></script>
+  <script src="./js/core/config.js"></script>
+  <script src="./js/core/router.js"></script>
+
+  <!-- 3. Service Layer -->
+  <script src="./js/services/auth-service.js"></script>
+  <script src="./js/services/user-service.js"></script>
+  <script src="./js/services/opportunity-service.js"></script>
+  <script src="./js/services/university-service.js"></script>
+  <script src="./js/services/event-service.js"></script>
+  <script src="./js/services/application-service.js"></script>
+
+  <!-- 4. Global App Initialization -->
+  <script src="./js/core/app.js"></script>
+
+  <!-- 5. Opportunities Modal Functions -->
+  <script src="./js/pages/opportunities.js"></script>
+
+  <!-- 6. Homepage Specific Dynamic Render Script -->
+  <script>
+    document.addEventListener("DOMContentLoaded", async function () {
+      // 1. Render Categories
+      const catContainer = document.getElementById("homeCategoriesContainer");
+      if (catContainer && window.MockCategories) {
+        catContainer.innerHTML = window.MockCategories.map(cat => `
+          <div class="col-lg-3 col-md-6 col-6">
+            <a href="pages/opportunities.html?category=${cat.id}" class="card h-100 p-3 border rounded-3 text-decoration-none shadow-sm edu-card">
+              <div class="d-flex align-items-center gap-3">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                  <i class="bi ${cat.icon}"></i>
+                </div>
+                <div>
+                  <h6 class="fw-bold text-dark mb-0 fs-6">${cat.name}</h6>
+                  <span class="text-xs text-muted text-truncate d-block">${cat.description}</span>
+                </div>
+              </div>
+            </a>
+          </div>
+        `).join("");
+      }
+
+      // 2. Render Featured Opportunities (First 3)
+      const opContainer = document.getElementById("homeOpportunitiesContainer");
+      if (opContainer && window.OpportunityService) {
+        const ops = await window.OpportunityService.getAll();
+        const featured = ops.slice(0, 3);
+        opContainer.innerHTML = featured.map(op => `
+          <div class="col-lg-4 col-md-6">
+            <div class="edu-card h-100">
+              <div class="edu-card-img-wrapper">
+                <span class="edu-card-badge bg-primary text-white">${op.type}</span>
+                <button class="edu-card-bookmark-btn text-muted" onclick="handleBookmarkClick(event, ${op.id})" title="Save to bookmarks">
+                  <i class="bi bi-bookmark"></i>
+                </button>
+                <img src="${op.image}" alt="${op.title}">
+              </div>
+              <div class="p-3.5 d-flex flex-column flex-grow-1">
+                <div class="d-flex align-items-center gap-2 mb-1.5 text-xs text-muted">
+                  <span><i class="bi bi-building me-1"></i>${op.provider_name}</span>
+                  <span>•</span>
+                  <span><i class="bi bi-geo-alt me-1"></i>${op.location}</span>
+                </div>
+                <h5 class="fs-6 fw-bold mb-2 text-dark text-truncate-2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.8rem;">
+                  ${op.title}
+                </h5>
+                <p class="text-secondary small mb-3 text-truncate-2 flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.5rem;">
+                  ${op.description}
+                </p>
+                <div class="pt-2 border-top d-flex align-items-center justify-content-between mb-3 text-xs">
+                  <div>
+                    <span class="text-muted d-block">Award</span>
+                    <span class="fw-semibold text-primary">${op.stipend_or_fee}</span>
+                  </div>
+                  <div class="text-end">
+                    <span class="text-muted d-block">Deadline</span>
+                    <span class="fw-semibold text-dark">${op.deadline}</span>
+                  </div>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-secondary w-50 fw-semibold" onclick="openOpportunityDetailModal(${op.id})">Details</button>
+                  <button class="btn btn-sm btn-primary w-50 fw-semibold" onclick="openApplyModal(${op.id})">Apply</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      // 3. Render Top Universities (First 2)
+      const uniContainer = document.getElementById("homeUniversitiesContainer");
+      if (uniContainer && window.UniversityService) {
+        const unis = await window.UniversityService.getAll();
+        uniContainer.innerHTML = unis.slice(0, 2).map(uni => `
+          <div class="col-lg-6">
+            <div class="uni-card h-100 p-4 d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                  <div class="d-flex align-items-center gap-3">
+                    <img src="${uni.logo}" class="rounded-3 border" width="52" height="52" style="object-fit: cover;">
+                    <div>
+                      <h5 class="fw-bold text-dark mb-0">${uni.name}</h5>
+                      <span class="text-xs text-muted"><i class="bi bi-geo-alt me-1"></i>${uni.city}, ${uni.country}</span>
+                    </div>
+                  </div>
+                  <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2.5 py-1 text-xs fw-semibold">
+                    QS #${uni.ranking}
+                  </span>
+                </div>
+                <p class="text-secondary small mb-3">${uni.description}</p>
+              </div>
+              <div class="pt-3 border-top d-flex align-items-center justify-content-between">
+                <div class="text-xs">
+                  <span class="text-muted">Next Intake:</span>
+                  <span class="fw-bold text-dark ms-1">${uni.intake_periods}</span>
+                </div>
+                <a href="pages/universities.html" class="btn btn-sm btn-outline-primary fw-semibold">View Intakes</a>
+              </div>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      // 4. Render Upcoming Events (First 2)
+      const evContainer = document.getElementById("homeEventsContainer");
+      if (evContainer && window.EventService) {
+        const events = await window.EventService.getAll();
+        evContainer.innerHTML = events.slice(0, 2).map(ev => `
+          <div class="col-lg-6">
+            <div class="card border rounded-3 p-4 shadow-sm bg-white h-100 d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <span class="badge bg-info bg-opacity-10 text-info-emphasis border border-info border-opacity-25 text-xs">${ev.event_type}</span>
+                  <span class="text-xs text-muted"><i class="bi bi-calendar3 me-1"></i>${ev.date} • ${ev.time}</span>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">${ev.title}</h5>
+                <p class="text-secondary small mb-3">${ev.description}</p>
+                <div class="text-xs text-muted mb-3"><i class="bi bi-person-video3 me-1"></i>Speaker: <strong>${ev.speaker}</strong></div>
+              </div>
+              <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                <span class="badge bg-light text-secondary border text-xs"><i class="bi bi-broadcast me-1"></i>${ev.mode}</span>
+                <button class="btn btn-sm btn-primary fw-semibold" onclick="window.App.showToast('Event RSVP confirmed! Invitation link sent.', 'success')">
+                  Free Registration
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join("");
+      }
+    });
+  </script>
+</body>
+</html>
+

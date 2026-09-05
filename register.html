@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - EduConnect Platform</title>
+  <meta name="description" content="Create a new learner or educational provider account on EduConnect." />
+
+  <!-- Bootstrap 5.3.3 CSS & Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <!-- Platform Custom Styles -->
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+  <!-- Dynamic Navigation Bar -->
+  <div id="mainNavbar"></div>
+
+  <main class="flex-grow-1 d-flex align-items-center py-5">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+          
+          <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <div class="card-body p-4 p-md-5">
+              
+              <div class="text-center mb-4">
+                <div class="brand-logo-badge bg-primary text-white rounded-3 d-inline-flex align-items-center justify-content-center mb-3" style="width: 48px; height: 48px;">
+                  <i class="bi bi-mortarboard-fill fs-4"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-1">Create an Account</h4>
+                <p class="text-secondary small mb-0">Join thousands of students and educational partners worldwide.</p>
+              </div>
+
+              <!-- Error Alert -->
+              <div id="regErrorAlert" class="alert alert-danger d-none py-2 px-3 small" role="alert"></div>
+
+              <!-- Register Form -->
+              <form id="registerForm">
+                
+                <!-- Role Selection -->
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold text-dark mb-2">I am registering as a:</label>
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <input type="radio" class="btn-check" name="regRole" id="roleLearner" value="learner" checked autocomplete="off">
+                      <label class="btn btn-outline-primary w-100 py-2.5 text-start d-flex align-items-center gap-2" for="roleLearner">
+                        <i class="bi bi-mortarboard fs-5"></i>
+                        <div>
+                          <div class="fw-bold fs-6">Learner</div>
+                          <div class="text-xs text-muted">Student / Scholar</div>
+                        </div>
+                      </label>
+                    </div>
+                    <div class="col-6">
+                      <input type="radio" class="btn-check" name="regRole" id="roleProvider" value="provider" autocomplete="off">
+                      <label class="btn btn-outline-warning text-dark w-100 py-2.5 text-start d-flex align-items-center gap-2" for="roleProvider">
+                        <i class="bi bi-building fs-5"></i>
+                        <div>
+                          <div class="fw-bold fs-6">Provider</div>
+                          <div class="text-xs text-muted">University / Institute</div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="regName" class="form-label small fw-semibold text-dark">Full Name or Institute Representative</label>
+                  <input type="text" class="form-control" id="regName" placeholder="e.g. Eleanor Vance" required />
+                </div>
+
+                <div class="mb-3">
+                  <label for="regEmail" class="form-label small fw-semibold text-dark">Email Address</label>
+                  <input type="email" class="form-control" id="regEmail" placeholder="e.g. eleanor@institute.edu" required />
+                </div>
+
+                <div class="mb-3">
+                  <label for="regOrg" class="form-label small fw-semibold text-dark">University, School or Organization</label>
+                  <input type="text" class="form-control" id="regOrg" placeholder="e.g. Cambridge Global Institute" />
+                </div>
+
+                <div class="mb-4">
+                  <label for="regPassword" class="form-label small fw-semibold text-dark">Create Password</label>
+                  <input type="password" class="form-control" id="regPassword" placeholder="Minimum 6 characters" required />
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2.5 fw-semibold mb-3" id="regSubmitBtn">
+                  Create Account
+                </button>
+              </form>
+
+              <div class="text-center small text-muted">
+                Already have an account? 
+                <a href="login.html" class="text-primary fw-semibold text-decoration-none">Sign In</a>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Dynamic Footer -->
+  <div id="mainFooter"></div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Scripts -->
+  <script src="./js/data/mock-users.js"></script>
+  <script src="./js/data/mock-categories.js"></script>
+  <script src="./js/data/mock-opportunities.js"></script>
+  <script src="./js/data/mock-universities.js"></script>
+  <script src="./js/data/mock-events.js"></script>
+  <script src="./js/data/mock-applications.js"></script>
+
+  <script src="./js/core/storage.js"></script>
+  <script src="./js/core/config.js"></script>
+  <script src="./js/core/router.js"></script>
+  <script src="./js/services/auth-service.js"></script>
+  <script src="./js/services/user-service.js"></script>
+  <script src="./js/services/opportunity-service.js"></script>
+  <script src="./js/services/university-service.js"></script>
+  <script src="./js/services/event-service.js"></script>
+  <script src="./js/services/application-service.js"></script>
+
+  <script src="./js/core/app.js"></script>
+  <script src="./js/auth/auth.js"></script>
+</body>
+</html>

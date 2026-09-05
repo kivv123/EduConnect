@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Partner Universities & Intakes - EduConnect</title>
+  <meta name="description" content="Discover partner universities worldwide, academic term intakes, admission deadlines, and campus news." />
+
+  <!-- Bootstrap 5.3.3 CSS & Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="bg-light">
+
+  <!-- Dynamic Navigation Bar -->
+  <div id="mainNavbar"></div>
+
+  <!-- Header -->
+  <section class="bg-white border-bottom py-4">
+    <div class="container">
+      <div class="row align-items-center g-3">
+        <div class="col-lg-7">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb text-xs mb-1">
+              <li class="breadcrumb-item"><a href="../index.html" class="text-decoration-none">Home</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Universities Directory</li>
+            </ol>
+          </nav>
+          <h1 class="h3 fw-bold text-dark mb-1">Global Universities & Admissions Intakes</h1>
+          <p class="text-secondary small mb-0">Explore partner institutions, academic terms, and upcoming application deadlines.</p>
+        </div>
+        <div class="col-lg-5 text-lg-end">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control border-start-0 shadow-none" id="searchUniversities" placeholder="Search institution name, city, or keywords..." />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter & Catalog Section -->
+  <main class="py-4">
+    <div class="container">
+      
+      <!-- Filter Controls Bar -->
+      <div class="card border p-3 rounded-3 shadow-sm bg-white mb-4">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-4">
+            <label class="form-label text-xs fw-bold text-secondary mb-1">Country / Region</label>
+            <select class="form-select form-select-sm" id="countryFilter">
+              <option value="all">All Countries</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="United States">United States</option>
+              <option value="Switzerland">Switzerland</option>
+              <option value="Singapore">Singapore</option>
+              <option value="Canada">Canada</option>
+              <option value="Australia">Australia</option>
+            </select>
+          </div>
+          <div class="col-md-5">
+            <div class="pt-md-4">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="scholarshipOnlyFilter">
+                <label class="form-check-label small fw-semibold text-dark" for="scholarshipOnlyFilter">
+                  Show only universities offering merit scholarships
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 text-md-end">
+            <div class="pt-md-4 text-xs text-muted">
+              Data source: <code>UniversityService</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Universities List -->
+      <div class="row g-4" id="universitiesContainer">
+        <!-- Populated via js/pages/universities.js -->
+      </div>
+
+      <!-- University News Section -->
+      <div class="mt-5 pt-4 border-top">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h4 class="h5 fw-bold text-dark mb-1"><i class="bi bi-newspaper text-primary me-2"></i>Campus Bulletins & Intake News</h4>
+            <p class="text-secondary small mb-0">Official updates from admissions offices and research faculties.</p>
+          </div>
+        </div>
+
+        <div class="row g-3" id="universityNewsContainer">
+          <!-- Populated via js/pages/universities.js -->
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- University Detail Modal -->
+  <div class="modal fade" id="universityDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-header border-bottom py-3 px-4 bg-light">
+          <h5 class="modal-title fw-bold text-dark fs-6" id="uniModalTitle">University Intakes</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4" id="uniModalBody">
+          <!-- Injected via Controller -->
+        </div>
+        <div class="modal-footer border-top py-2.5 px-4 bg-light">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic Footer -->
+  <div id="mainFooter"></div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Script Pipeline -->
+  <script src="../js/data/mock-users.js"></script>
+  <script src="../js/data/mock-categories.js"></script>
+  <script src="../js/data/mock-opportunities.js"></script>
+  <script src="../js/data/mock-universities.js"></script>
+  <script src="../js/data/mock-events.js"></script>
+  <script src="../js/data/mock-applications.js"></script>
+
+  <script src="../js/core/config.js"></script>
+  <script src="../js/core/storage.js"></script>
+  <script src="../js/core/router.js"></script>
+  <script src="../js/services/auth-service.js"></script>
+  <script src="../js/services/user-service.js"></script>
+  <script src="../js/services/opportunity-service.js"></script>
+  <script src="../js/services/university-service.js"></script>
+  <script src="../js/services/event-service.js"></script>
+  <script src="../js/services/application-service.js"></script>
+
+  <script src="../js/core/app.js"></script>
+  <script src="../js/pages/universities.js"></script>
+</body>
+</html>

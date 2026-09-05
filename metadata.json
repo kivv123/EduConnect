@@ -1,0 +1,6 @@
+{
+  "name": "EduConnect",
+  "description": "Educational opportunity and university discovery platform connecting learners, institutions, and administrators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
