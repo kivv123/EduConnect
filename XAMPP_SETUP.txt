@@ -1,0 +1,31 @@
+EDUCONNECT - XAMPP SETUP
+
+1. Extract this project to exactly:
+   C:\xampp\htdocs\educonnect\
+
+2. Start Apache and MySQL in XAMPP.
+
+3. Open phpMyAdmin:
+   http://localhost/phpmyadmin/
+
+4. Import:
+   C:\xampp\htdocs\educonnect\database\educonnect.sql
+   The SQL creates the educonnect database automatically.
+
+5. Test the backend directly:
+   http://localhost/educonnect/backend/api/health.php
+   You should see JSON with success:true.
+
+6. Open the website:
+   http://localhost/educonnect/
+
+7. Demo login:
+   Admin: admin@educonnect.org / admin123
+   Provider: oxford@educonnect.org / provider123
+   Learner: learner@educonnect.org / learner123
+
+IMPORTANT:
+- Do not open index.html using file:///...
+- Do not run this frontend from Vite if you want PHP/MySQL. Use Apache.
+- If health.php says database connection error, make sure MySQL is running and the database was imported.
+- Default XAMPP MySQL settings expected by this project: host localhost, user root, blank password, database educonnect.

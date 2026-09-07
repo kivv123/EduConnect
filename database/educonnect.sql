@@ -1,298 +1,462 @@
--- =====================================================================
--- EduConnect - Educational Opportunity Ecosystem Database Dump
--- Compatible with: MySQL 5.7+, MySQL 8.0+, MariaDB 10.4+ (XAMPP / phpMyAdmin)
--- Character Set: utf8mb4 / utf8mb4_unicode_ci
--- Generated for seamless 1-click import into phpMyAdmin
--- =====================================================================
+-- ==========================================================
+-- EduConnect Database Schema
+-- Importable via phpMyAdmin or MySQL CLI
+-- ==========================================================
 
-SET FOREIGN_KEY_CHECKS = 0;
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
-
--- ---------------------------------------------------------------------
--- 1. Database Creation
--- ---------------------------------------------------------------------
 CREATE DATABASE IF NOT EXISTS `educonnect` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `educonnect`;
 
--- ---------------------------------------------------------------------
--- 2. Drop existing tables if they exist (clean re-installation)
--- ---------------------------------------------------------------------
-DROP TABLE IF EXISTS `saved_opportunities`;
-DROP TABLE IF EXISTS `applications`;
-DROP TABLE IF EXISTS `events`;
-DROP TABLE IF EXISTS `opportunities`;
-DROP TABLE IF EXISTS `university_news`;
-DROP TABLE IF EXISTS `university_intakes`;
-DROP TABLE IF EXISTS `universities`;
-DROP TABLE IF EXISTS `categories`;
-DROP TABLE IF EXISTS `users`;
+-- Disable foreign key checks for clean setup
+SET FOREIGN_KEY_CHECKS = 0;
 
--- ---------------------------------------------------------------------
--- 3. Table: users
--- Roles: 'learner' (Student), 'provider' (Institution), 'admin' (Platform)
--- Default test password for all mock accounts: '123456'
--- Bcrypt Hash: $2y$10$e0MYzXyjpJS7Pd0RVvHwHeFj6LwUaGv98K8g0F5o5O5Jz17B576mO
--- ---------------------------------------------------------------------
+-- --------------------------------------------------------
+-- Table structure for `users`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `name` VARCHAR(100) NOT NULL,
-  `email` VARCHAR(150) NOT NULL UNIQUE,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(150) NOT NULL,
+  `email` VARCHAR(191) NOT NULL UNIQUE,
   `password` VARCHAR(255) NOT NULL,
   `role` ENUM('learner', 'provider', 'admin') NOT NULL DEFAULT 'learner',
-  `avatar` VARCHAR(255) NULL,
-  `phone` VARCHAR(30) NULL,
-  `bio` TEXT NULL,
-  `organization` VARCHAR(150) NULL,
-  `status` ENUM('active', 'pending', 'suspended') NOT NULL DEFAULT 'active',
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX `idx_users_role` (`role`),
-  INDEX `idx_users_status` (`status`)
+  `phone` VARCHAR(50) DEFAULT NULL,
+  `status` ENUM('active', 'inactive', 'suspended') NOT NULL DEFAULT 'active',
+  `email_verified` TINYINT(1) NOT NULL DEFAULT 0,
+  `verification_code` VARCHAR(10) DEFAULT NULL,
+  `verification_expires` DATETIME DEFAULT NULL,
+  `verification_attempts` INT NOT NULL DEFAULT 0,
+  `reset_code` VARCHAR(10) DEFAULT NULL,
+  `reset_expires` DATETIME DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_users_email` (`email`),
+  INDEX `idx_users_role` (`role`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ---------------------------------------------------------------------
--- 4. Table: categories
--- Opportunity classification (Scholarships, Courses, Internships, etc.)
--- ---------------------------------------------------------------------
-CREATE TABLE `categories` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `name` VARCHAR(100) NOT NULL,
-  `slug` VARCHAR(100) NOT NULL UNIQUE,
-  `icon` VARCHAR(50) NOT NULL,
-  `description` VARCHAR(255) NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ---------------------------------------------------------------------
--- 5. Table: universities
--- Global university directory, QS rankings, tuition ranges & profiles
--- ---------------------------------------------------------------------
-CREATE TABLE `universities` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `name` VARCHAR(150) NOT NULL,
+-- --------------------------------------------------------
+-- Table structure for `providers`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `providers`;
+CREATE TABLE `providers` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` INT UNSIGNED NOT NULL,
+  `provider_type` ENUM('university', 'organization', 'ngo', 'training_center', 'company', 'community_organization', 'other') NOT NULL DEFAULT 'university',
+  `name` VARCHAR(255) NOT NULL,
+  `logo` VARCHAR(500) DEFAULT NULL,
   `country` VARCHAR(100) NOT NULL,
   `city` VARCHAR(100) NOT NULL,
-  `established` INT NULL,
-  `ranking` INT NULL,
-  `intake_periods` VARCHAR(150) NOT NULL,
-  `website` VARCHAR(255) NULL,
-  `logo` VARCHAR(255) NULL,
-  `banner` VARCHAR(255) NULL,
-  `description` TEXT NULL,
-  `tuition_range` VARCHAR(100) NULL,
-  `scholarship_available` TINYINT(1) NOT NULL DEFAULT 1,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX `idx_uni_country` (`country`),
-  INDEX `idx_uni_ranking` (`ranking`)
+  `address` TEXT DEFAULT NULL,
+  `website` VARCHAR(255) DEFAULT NULL,
+  `description` TEXT DEFAULT NULL,
+  `contact_email` VARCHAR(191) DEFAULT NULL,
+  `contact_phone` VARCHAR(50) DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_providers_user_id` (`user_id`),
+  INDEX `idx_providers_type` (`provider_type`),
+  CONSTRAINT `fk_providers_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ---------------------------------------------------------------------
--- 6. Table: university_intakes
--- Upcoming admission intake deadlines per university (3NF decomposition)
--- ---------------------------------------------------------------------
-CREATE TABLE `university_intakes` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `university_id` INT NOT NULL,
-  `term` VARCHAR(100) NOT NULL,
-  `deadline` DATE NOT NULL,
-  `status` VARCHAR(50) NOT NULL DEFAULT 'Open',
-  CONSTRAINT `fk_intake_university` FOREIGN KEY (`university_id`) REFERENCES `universities` (`id`) ON DELETE CASCADE
+-- --------------------------------------------------------
+-- Table structure for `universities`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `universities`;
+CREATE TABLE `universities` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `provider_id` INT UNSIGNED NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `logo` VARCHAR(500) DEFAULT NULL,
+  `country` VARCHAR(100) NOT NULL,
+  `city` VARCHAR(100) NOT NULL,
+  `address` TEXT DEFAULT NULL,
+  `website` VARCHAR(255) DEFAULT NULL,
+  `description` TEXT DEFAULT NULL,
+  `established_year` INT DEFAULT NULL,
+  `institution_type` ENUM('Public', 'Private', 'Collegiate', 'Research') DEFAULT 'Public',
+  `qs_world_ranking` INT DEFAULT NULL,
+  `tuition_min` DECIMAL(12,2) DEFAULT NULL,
+  `tuition_max` DECIMAL(12,2) DEFAULT NULL,
+  `currency` VARCHAR(10) DEFAULT 'USD',
+  `is_featured` TINYINT(1) NOT NULL DEFAULT 0,
+  `featured_order` INT NOT NULL DEFAULT 0,
+  `featured_at` DATETIME DEFAULT NULL,
+  `featured_by` INT UNSIGNED DEFAULT NULL,
+  `is_verified` TINYINT(1) NOT NULL DEFAULT 0,
+  `verified_at` DATETIME DEFAULT NULL,
+  `verified_by` INT UNSIGNED DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_universities_provider` (`provider_id`),
+  INDEX `idx_universities_featured` (`is_featured`),
+  INDEX `idx_universities_verified` (`is_verified`),
+  INDEX `idx_universities_ranking` (`qs_world_ranking`),
+  CONSTRAINT `fk_universities_provider` FOREIGN KEY (`provider_id`) REFERENCES `providers` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_universities_featured_by` FOREIGN KEY (`featured_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_universities_verified_by` FOREIGN KEY (`verified_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ---------------------------------------------------------------------
--- 7. Table: university_news
--- Campus research bulletins, announcements & scholarship calls
--- ---------------------------------------------------------------------
-CREATE TABLE `university_news` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `university_id` INT NOT NULL,
-  `title` VARCHAR(255) NOT NULL,
-  `date` DATE NOT NULL,
-  `excerpt` TEXT NOT NULL,
-  CONSTRAINT `fk_news_university` FOREIGN KEY (`university_id`) REFERENCES `universities` (`id`) ON DELETE CASCADE
+-- --------------------------------------------------------
+-- Table structure for `categories`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `categories`;
+CREATE TABLE `categories` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NOT NULL,
+  `slug` VARCHAR(100) NOT NULL UNIQUE,
+  `description` VARCHAR(255) DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ---------------------------------------------------------------------
--- 8. Table: opportunities
--- Core listings: scholarships, courses, internships, competitions, etc.
--- ---------------------------------------------------------------------
+-- --------------------------------------------------------
+-- Table structure for `opportunities`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `opportunities`;
 CREATE TABLE `opportunities` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `provider_id` INT UNSIGNED NOT NULL,
+  `university_id` INT UNSIGNED DEFAULT NULL,
+  `category_id` INT UNSIGNED NOT NULL,
   `title` VARCHAR(255) NOT NULL,
   `description` TEXT NOT NULL,
-  `category_id` INT NOT NULL,
-  `provider_id` INT NOT NULL,
-  `provider_name` VARCHAR(150) NOT NULL,
-  `location` VARCHAR(100) NOT NULL,
-  `mode` ENUM('Remote', 'On-site', 'Hybrid') NOT NULL DEFAULT 'Remote',
-  `type` VARCHAR(50) NOT NULL,
-  `stipend_or_fee` VARCHAR(100) NOT NULL DEFAULT 'Free',
-  `deadline` DATE NOT NULL,
-  `requirements` TEXT NULL,
-  `spots` INT NOT NULL DEFAULT 20,
-  `image` VARCHAR(255) NULL,
-  `status` ENUM('active', 'closed', 'draft') NOT NULL DEFAULT 'active',
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX `idx_opportunity_category` (`category_id`),
-  INDEX `idx_opportunity_provider` (`provider_id`),
-  INDEX `idx_opportunity_deadline` (`deadline`),
-  INDEX `idx_opportunity_status` (`status`),
-  CONSTRAINT `fk_opportunity_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `fk_opportunity_provider` FOREIGN KEY (`provider_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ---------------------------------------------------------------------
--- 9. Table: events
--- Academic seminars, workshops, open days, and webinars
--- ---------------------------------------------------------------------
-CREATE TABLE `events` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `title` VARCHAR(255) NOT NULL,
-  `university_id` INT NULL,
-  `provider_id` INT NOT NULL,
-  `event_type` ENUM('Seminar', 'Workshop', 'Open Day', 'Webinar', 'Career Fair') NOT NULL,
-  `date` DATE NOT NULL,
-  `time` VARCHAR(50) NOT NULL,
   `location` VARCHAR(150) NOT NULL,
-  `mode` ENUM('Online', 'In-Person', 'Hybrid') NOT NULL DEFAULT 'Online',
-  `speaker` VARCHAR(150) NULL,
-  `banner` VARCHAR(255) NULL,
-  `description` TEXT NOT NULL,
-  `registration_link` VARCHAR(255) NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX `idx_event_date` (`date`),
-  CONSTRAINT `fk_event_provider` FOREIGN KEY (`provider_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_event_university` FOREIGN KEY (`university_id`) REFERENCES `universities` (`id`) ON DELETE SET NULL
+  `country` VARCHAR(100) NOT NULL,
+  `start_date` DATE NOT NULL,
+  `end_date` DATE DEFAULT NULL,
+  `application_deadline` DATE NOT NULL,
+  `eligibility` TEXT DEFAULT NULL,
+  `requirements` TEXT DEFAULT NULL,
+  `available_slots` INT DEFAULT NULL,
+  `external_application_url` VARCHAR(500) DEFAULT NULL,
+  `status` ENUM('upcoming', 'open', 'closing_soon', 'closed') NOT NULL DEFAULT 'open',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_opp_provider` (`provider_id`),
+  INDEX `idx_opp_university` (`university_id`),
+  INDEX `idx_opp_category` (`category_id`),
+  INDEX `idx_opp_deadline` (`application_deadline`),
+  INDEX `idx_opp_status` (`status`),
+  CONSTRAINT `fk_opp_provider` FOREIGN KEY (`provider_id`) REFERENCES `providers` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_opp_university` FOREIGN KEY (`university_id`) REFERENCES `universities` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_opp_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ---------------------------------------------------------------------
--- 10. Table: applications
--- Student submissions for specific opportunities
--- ---------------------------------------------------------------------
+-- --------------------------------------------------------
+-- Table structure for `university_intakes`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `university_intakes`;
+CREATE TABLE `university_intakes` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `university_id` INT UNSIGNED NOT NULL,
+  `intake_name` VARCHAR(100) NOT NULL,
+  `start_date` DATE NOT NULL,
+  `application_deadline` DATE NOT NULL,
+  `description` TEXT DEFAULT NULL,
+  `application_url` VARCHAR(500) DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_intakes_univ` (`university_id`),
+  CONSTRAINT `fk_intakes_university` FOREIGN KEY (`university_id`) REFERENCES `universities` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Table structure for `learner_profiles`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `learner_profiles`;
+CREATE TABLE `learner_profiles` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` INT UNSIGNED NOT NULL UNIQUE,
+  `profile_photo` VARCHAR(500) DEFAULT NULL,
+  `headline` VARCHAR(255) DEFAULT NULL,
+  `bio` TEXT DEFAULT NULL,
+  `date_of_birth` DATE DEFAULT NULL,
+  `gender` VARCHAR(50) DEFAULT NULL,
+  `country` VARCHAR(100) DEFAULT NULL,
+  `city` VARCHAR(100) DEFAULT NULL,
+  `phone` VARCHAR(50) DEFAULT NULL,
+  `website` VARCHAR(255) DEFAULT NULL,
+  `linkedin_url` VARCHAR(255) DEFAULT NULL,
+  `career_goal` TEXT DEFAULT NULL,
+  `education_goal` TEXT DEFAULT NULL,
+  `interests` TEXT DEFAULT NULL,
+  `profile_visibility` ENUM('public', 'providers_only', 'private') NOT NULL DEFAULT 'public',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_learner_user` (`user_id`),
+  CONSTRAINT `fk_learner_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Table structure for `learner_education`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `learner_education`;
+CREATE TABLE `learner_education` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `learner_id` INT UNSIGNED NOT NULL,
+  `institution_name` VARCHAR(255) NOT NULL,
+  `education_level` VARCHAR(100) NOT NULL,
+  `field_of_study` VARCHAR(150) NOT NULL,
+  `start_date` DATE NOT NULL,
+  `end_date` DATE DEFAULT NULL,
+  `grade` VARCHAR(50) DEFAULT NULL,
+  `description` TEXT DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_edu_learner` (`learner_id`),
+  CONSTRAINT `fk_edu_learner` FOREIGN KEY (`learner_id`) REFERENCES `learner_profiles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Table structure for `learner_skills`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `learner_skills`;
+CREATE TABLE `learner_skills` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `learner_id` INT UNSIGNED NOT NULL,
+  `skill_name` VARCHAR(100) NOT NULL,
+  `skill_level` ENUM('Beginner', 'Intermediate', 'Advanced', 'Expert') NOT NULL DEFAULT 'Intermediate',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_skill_learner` (`learner_id`),
+  CONSTRAINT `fk_skill_learner` FOREIGN KEY (`learner_id`) REFERENCES `learner_profiles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Table structure for `learner_achievements`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `learner_achievements`;
+CREATE TABLE `learner_achievements` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `learner_id` INT UNSIGNED NOT NULL,
+  `title` VARCHAR(255) NOT NULL,
+  `description` TEXT DEFAULT NULL,
+  `date` DATE DEFAULT NULL,
+  `organization` VARCHAR(200) DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_ach_learner` (`learner_id`),
+  CONSTRAINT `fk_ach_learner` FOREIGN KEY (`learner_id`) REFERENCES `learner_profiles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Table structure for `learner_projects`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `learner_projects`;
+CREATE TABLE `learner_projects` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `learner_id` INT UNSIGNED NOT NULL,
+  `title` VARCHAR(255) NOT NULL,
+  `description` TEXT DEFAULT NULL,
+  `role` VARCHAR(100) DEFAULT NULL,
+  `technologies` VARCHAR(255) DEFAULT NULL,
+  `project_url` VARCHAR(500) DEFAULT NULL,
+  `start_date` DATE DEFAULT NULL,
+  `end_date` DATE DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_proj_learner` (`learner_id`),
+  CONSTRAINT `fk_proj_learner` FOREIGN KEY (`learner_id`) REFERENCES `learner_profiles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Table structure for `learner_certificates`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `learner_certificates`;
+CREATE TABLE `learner_certificates` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `learner_id` INT UNSIGNED NOT NULL,
+  `certificate_name` VARCHAR(255) NOT NULL,
+  `issuing_organization` VARCHAR(200) NOT NULL,
+  `issue_date` DATE NOT NULL,
+  `credential_url` VARCHAR(500) DEFAULT NULL,
+  `description` TEXT DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_cert_learner` (`learner_id`),
+  CONSTRAINT `fk_cert_learner` FOREIGN KEY (`learner_id`) REFERENCES `learner_profiles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Table structure for `learner_languages`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `learner_languages`;
+CREATE TABLE `learner_languages` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `learner_id` INT UNSIGNED NOT NULL,
+  `language` VARCHAR(100) NOT NULL,
+  `proficiency` ENUM('Basic', 'Conversational', 'Fluent', 'Native/Bilingual') NOT NULL DEFAULT 'Fluent',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_lang_learner` (`learner_id`),
+  CONSTRAINT `fk_lang_learner` FOREIGN KEY (`learner_id`) REFERENCES `learner_profiles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Table structure for `applications`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `applications`;
 CREATE TABLE `applications` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `opportunity_id` INT NOT NULL,
-  `student_id` INT NOT NULL,
-  `student_name` VARCHAR(100) NOT NULL,
-  `student_email` VARCHAR(150) NOT NULL,
-  `resume_link` VARCHAR(255) NULL,
-  `statement` TEXT NOT NULL,
-  `status` ENUM('pending', 'under_review', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
-  `applied_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX `idx_app_student` (`student_id`),
-  INDEX `idx_app_opportunity` (`opportunity_id`),
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `learner_id` INT UNSIGNED NOT NULL,
+  `opportunity_id` INT UNSIGNED NOT NULL,
+  `provider_id` INT UNSIGNED NOT NULL,
+  `application_type` ENUM('express_interest', 'profile_application', 'external_application') NOT NULL DEFAULT 'profile_application',
+  `status` ENUM('pending', 'viewed', 'shortlisted', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
+  `cover_message` TEXT DEFAULT NULL,
+  `submitted_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_app_learner` (`learner_id`),
+  INDEX `idx_app_opp` (`opportunity_id`),
+  INDEX `idx_app_provider` (`provider_id`),
   INDEX `idx_app_status` (`status`),
-  CONSTRAINT `fk_app_opportunity` FOREIGN KEY (`opportunity_id`) REFERENCES `opportunities` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_app_student` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+  CONSTRAINT `fk_app_learner` FOREIGN KEY (`learner_id`) REFERENCES `learner_profiles` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_app_opp` FOREIGN KEY (`opportunity_id`) REFERENCES `opportunities` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_app_provider` FOREIGN KEY (`provider_id`) REFERENCES `providers` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ---------------------------------------------------------------------
--- 11. Table: saved_opportunities (Bookmarks)
--- ---------------------------------------------------------------------
-CREATE TABLE `saved_opportunities` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `student_id` INT NOT NULL,
-  `opportunity_id` INT NOT NULL,
-  `saved_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE KEY `unique_student_opportunity` (`student_id`, `opportunity_id`),
-  CONSTRAINT `fk_save_student` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_save_opportunity` FOREIGN KEY (`opportunity_id`) REFERENCES `opportunities` (`id`) ON DELETE CASCADE
+-- --------------------------------------------------------
+-- Table structure for `saved_bookmarks`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `saved_bookmarks`;
+CREATE TABLE `saved_bookmarks` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` INT UNSIGNED NOT NULL,
+  `opportunity_id` INT UNSIGNED NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_user_opp` (`user_id`, `opportunity_id`),
+  CONSTRAINT `fk_bookmark_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_bookmark_opp` FOREIGN KEY (`opportunity_id`) REFERENCES `opportunities` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- =====================================================================
--- POPULATE SEED DATA
--- =====================================================================
+-- --------------------------------------------------------
+-- Table structure for `audit_logs`
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `audit_logs`;
+CREATE TABLE `audit_logs` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `admin_user_id` INT UNSIGNED NOT NULL,
+  `action` VARCHAR(100) NOT NULL,
+  `entity_type` VARCHAR(50) NOT NULL,
+  `entity_id` INT UNSIGNED NOT NULL,
+  `description` TEXT NOT NULL,
+  `old_values` LONGTEXT DEFAULT NULL,
+  `new_values` LONGTEXT DEFAULT NULL,
+  `ip_address` VARCHAR(45) DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_audit_admin` (`admin_user_id`),
+  INDEX `idx_audit_action` (`action`),
+  INDEX `idx_audit_entity` (`entity_type`, `entity_id`),
+  CONSTRAINT `fk_audit_admin` FOREIGN KEY (`admin_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Users (Password for all accounts is '123456')
--- Hash generated via password_hash('123456', PASSWORD_BCRYPT)
-INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `avatar`, `phone`, `bio`, `organization`, `status`, `created_at`) VALUES
-(1, 'Alex Johnson', 'student@test.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFj6LwUaGv98K8g0F5o5O5Jz17B576mO', 'learner', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80', '+1 (555) 234-5678', 'Computer Science undergraduate passionate about Artificial Intelligence and Full Stack Development.', 'Yangon Technological University', 'active', '2025-01-15 10:30:00'),
-(2, 'Dr. Eleanor Vance', 'provider@test.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFj6LwUaGv98K8g0F5o5O5Jz17B576mO', 'provider', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80', '+1 (555) 987-6543', 'Dean of Global Outreach & STEM Programs at Cambridge Global Institute.', 'Cambridge Global Institute', 'active', '2024-11-20 08:45:00'),
-(3, 'Marcus Sterling', 'admin@test.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFj6LwUaGv98K8g0F5o5O5Jz17B576mO', 'admin', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80', '+1 (555) 000-1122', 'Chief Operations & Quality Assurance Officer at EduConnect platform.', 'EduConnect HQ', 'active', '2024-09-01 09:00:00'),
-(4, 'Sophia Chen', 'sophia.chen@mit.edu', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFj6LwUaGv98K8g0F5o5O5Jz17B576mO', 'provider', 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80', '+1 (555) 345-6789', 'Admissions Coordinator for MIT Open Engineering Labs & Robotics Initiative.', 'MIT International Lab', 'active', '2024-12-05 14:15:00'),
-(5, 'Liam O\'Connor', 'liam.learner@test.com', '$2y$10$e0MYzXyjpJS7Pd0RVvHwHeFj6LwUaGv98K8g0F5o5O5Jz17B576mO', 'learner', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80', '+1 (555) 456-7890', 'Aspiring Data Scientist and machine learning research intern candidate.', 'National University', 'active', '2025-02-01 11:20:00');
-
--- Categories
-INSERT INTO `categories` (`id`, `name`, `slug`, `icon`, `description`) VALUES
-(1, 'Scholarships', 'scholarships', 'bi-award', 'Fully-funded and merit-based global university grants'),
-(2, 'Courses & Classes', 'courses', 'bi-book', 'Accredited online certifications and campus bootcamps'),
-(3, 'Internships', 'internships', 'bi-briefcase', 'Industry placements, fellowships and co-op programs'),
-(4, 'Seminars & Webinars', 'seminars', 'bi-camera-video', 'Academic talks, expert symposiums, and masterclasses'),
-(5, 'Workshops', 'workshops', 'bi-tools', 'Hands-on intensive practical skill-building sessions'),
-(6, 'Competitions', 'competitions', 'bi-trophy', 'Hackathons, research challenges, and case competitions'),
-(7, 'Volunteer Opportunities', 'volunteer', 'bi-heart-half', 'Community impact, NGO initiatives, and youth diplomacy'),
-(8, 'University Intakes', 'university-intakes', 'bi-buildings', 'Fall, Spring, and Summer direct admissions deadlines');
-
--- Universities
-INSERT INTO `universities` (`id`, `name`, `country`, `city`, `established`, `ranking`, `intake_periods`, `website`, `logo`, `banner`, `description`, `tuition_range`, `scholarship_available`, `created_at`) VALUES
-(1, 'National University of Singapore (NUS)', 'Singapore', 'Kent Ridge', 1905, 8, 'August & January', 'https://www.nus.edu.sg', 'https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=120&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&auto=format&fit=crop&q=80', 'A leading global university centered in Asia, NUS offers a global approach to education, research, and entrepreneurship with strong focus on Asian perspectives.', '$17,500 - $32,000 / year', 1, '2024-08-10 09:00:00'),
-(2, 'University of Melbourne', 'Australia', 'Melbourne', 1853, 13, 'February & July', 'https://www.unimelb.edu.au', 'https://images.unsplash.com/photo-1562774053-701939374585?w=120&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&auto=format&fit=crop&q=80', 'Consistently ranked among the world\'s finest universities, renowned for research breakthroughs in medicine, biotechnology, engineering, and environmental design.', 'AUD $34,000 - $48,000 / year', 1, '2024-08-15 10:00:00'),
-(3, 'Technical University of Munich (TUM)', 'Germany', 'Munich', 1868, 28, 'October & April', 'https://www.tum.de', 'https://images.unsplash.com/photo-1525921429624-479b6a26d84d?w=120&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1519452635265-7b1fbfd1e4e0?w=800&auto=format&fit=crop&q=80', 'Germany\'s premier institution for science and technology, TUM drives European entrepreneurship, aerospace innovation, and sustainable engineering.', '€0 - €4,000 / semester (Low tuition)', 1, '2024-08-20 11:30:00'),
-(4, 'University of Tokyo', 'Japan', 'Tokyo', 1877, 23, 'April & September', 'https://www.u-tokyo.ac.jp', 'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=120&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&auto=format&fit=crop&q=80', 'Japan\'s highest-ranking university, producing 16 Nobel laureates and world-class research institutes across photonics, nanotech, and international diplomacy.', '¥535,800 / year (~$3,600 USD)', 1, '2024-09-01 08:15:00'),
-(5, 'University of Edinburgh', 'United Kingdom', 'Edinburgh', 1582, 27, 'September', 'https://www.ed.ac.uk', 'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?w=120&auto=format&fit=crop&q=80', 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&auto=format&fit=crop&q=80', 'Historic Scottish institution steeped in Enlightenment legacy, globally acclaimed for computer informatics, medical sciences, and arts.', '£24,500 - £35,000 / year', 1, '2024-09-05 14:00:00');
-
--- University Intakes
-INSERT INTO `university_intakes` (`id`, `university_id`, `term`, `deadline`, `status`) VALUES
-(1, 1, 'Fall 2025', '2025-05-30', 'Open'),
-(2, 1, 'Spring 2026', '2025-10-15', 'Upcoming'),
-(3, 2, 'Semester 2 (July 2025)', '2025-04-30', 'Open'),
-(4, 2, 'Semester 1 (Feb 2026)', '2025-11-30', 'Upcoming'),
-(5, 3, 'Winter Semester 2025/26', '2025-07-15', 'Open'),
-(6, 3, 'Summer Semester 2026', '2026-01-15', 'Upcoming'),
-(7, 4, 'Autumn PEAK Intake 2025', '2025-05-15', 'Open'),
-(8, 4, 'Spring Undergraduate 2026', '2025-11-10', 'Upcoming'),
-(9, 5, 'Autumn 2025 (UCAS)', '2025-06-30', 'Open');
-
--- University News
-INSERT INTO `university_news` (`id`, `university_id`, `title`, `date`, `excerpt`) VALUES
-(101, 1, 'NUS Announces 100 New Full-Ride AI Research Fellowships', '2025-03-01', 'Applications open for Southeast Asian scholars conducting generative AI and quantum research.'),
-(102, 1, 'Global Exchange Partnership Expanded with European Tech Hubs', '2025-02-14', 'Students can now spend dual semesters in Zurich and Munich under the Erasmus+ alliance.'),
-(103, 2, 'Melbourne International Undergraduate Scholarship Round 2 Open', '2025-02-28', 'Up to 100% fee remission available for high-achieving undergraduate candidates.'),
-(104, 3, 'Zero-Tuition Engineering Programs Expand English-Taught Tracks', '2025-01-20', 'Four new Master of Science specializations in Robotics and Green Energy now 100% English.'),
-(105, 4, 'MEXT Japanese Government Scholarships Application Protocol Released', '2025-02-10', 'Full monthly stipend, roundtrip flights, and waived tuition for qualified international students.'),
-(106, 5, 'Edinburgh Global Online Learning Scholarships Open for 2025', '2025-01-18', 'Full tuition coverage for eligible distance-learning master degrees in global health.');
-
--- Opportunities
-INSERT INTO `opportunities` (`id`, `title`, `description`, `category_id`, `provider_id`, `provider_name`, `location`, `mode`, `type`, `stipend_or_fee`, `deadline`, `requirements`, `spots`, `image`, `status`, `created_at`) VALUES
-(1, 'Full-Stack Python & Django Web Development Bootcamp', 'Intensive 12-week software engineering accelerator focusing on modern backend RESTful APIs, database design with PostgreSQL/MySQL, automated testing, and cloud deployment pipelines.', 2, 2, 'Cambridge Global Institute', 'Yangon & Remote', 'Hybrid', 'Course', 'Free (Funded)', '2025-05-15', 'Basic programming fundamentals in any language, laptop with 8GB+ RAM, commitment of 15 hours/week.', 35, 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&auto=format&fit=crop&q=80', 'active', '2025-02-10 09:30:00'),
-(2, 'ASEAN Future Leaders STEM Scholarship 2025/2026', 'Prestigious full scholarship covering tuition, monthly stipend, medical insurance, and international return flights for undergraduate STEM students admitted to top partner institutes.', 1, 2, 'Cambridge Global Institute', 'Singapore', 'On-site', 'Scholarship', 'Full Tuition + $1,200/mo', '2025-06-01', 'GPA >= 3.5 or equivalent, IELTS 6.5+ or TOEFL iBT 90+, demonstrated extracurricular leadership, 2 academic recommendation letters.', 10, 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80', 'active', '2025-01-20 11:15:00'),
-(3, 'AI Research & Machine Learning Summer Internship', 'Paid 10-week summer research internship working alongside senior scientists on computer vision, multilingual NLP models, and generative audio systems.', 3, 4, 'MIT International Lab', 'Boston / Remote', 'Remote', 'Internship', '$3,500 / month', '2025-04-30', 'Proficiency in PyTorch or TensorFlow, solid linear algebra and calculus, GitHub portfolio with 2+ ML projects.', 6, 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop&q=80', 'active', '2025-02-05 16:45:00'),
-(4, 'Global Climate Innovation & CleanTech Hackathon', '48-hour global virtual hackathon bringing together students, designers, and engineers to build high-impact digital solutions for renewable energy and waste reduction.', 6, 4, 'MIT International Lab', 'Online', 'Remote', 'Competition', '$15,000 Prize Pool', '2025-05-20', 'Teams of 2-4 students. Open to university and polytechnic students globally. Mentors provided during the event.', 150, 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&auto=format&fit=crop&q=80', 'active', '2025-02-15 14:00:00'),
-(5, 'Interactive UI/UX Design & Figma Design Systems Masterclass', 'Two-weekend intensive hands-on workshop guiding students from user research and wireframing to responsive design systems, tokens, and micro-interactions.', 5, 2, 'Cambridge Global Institute', 'Online', 'Remote', 'Workshop', 'Free with Certificate', '2025-04-18', 'Free Figma account, enthusiasm for digital design, completion of pre-session UI reading guide.', 80, 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=600&auto=format&fit=crop&q=80', 'active', '2025-02-18 10:00:00'),
-(6, 'Youth Digital Literacy Volunteer Educator Program', 'Volunteer 4 hours per week delivering foundational digital skills and internet safety mentorship to middle school students in underserved community centers.', 7, 2, 'Cambridge Global Institute', 'Mandalay & Yangon', 'On-site', 'Volunteer', 'Transportation Stipend', '2025-05-10', 'Patience, strong communication skills in English & local language, commitment for minimum 8 weeks.', 25, 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&auto=format&fit=crop&q=80', 'active', '2025-02-22 13:20:00'),
-(7, 'Cybersecurity & Ethical Hacking Professional Certification', 'Hands-on virtual lab training in network penetration testing, vulnerability assessment, Linux security architecture, and defensive threat hunting.', 2, 4, 'MIT International Lab', 'Online', 'Remote', 'Course', '$120 (Scholarships Available)', '2025-06-15', 'Basic networking fundamentals (TCP/IP, DNS, Subnets), familiarity with Linux terminal commands.', 50, 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80', 'active', '2025-02-25 08:30:00'),
-(8, 'European DAAD Postgraduate Research Grant', 'Comprehensive study and research scholarship for Master and PhD scholars in engineering, natural sciences, and public administration at premier German universities.', 1, 2, 'Cambridge Global Institute', 'Germany', 'On-site', 'Scholarship', '€934 - €1,300 / month', '2025-07-31', 'Completed Bachelor\'s degree with honors, research proposal synopsis (2-3 pages), English B2/C1 certification.', 15, 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&auto=format&fit=crop&q=80', 'active', '2025-01-28 17:00:00');
-
--- Events
-INSERT INTO `events` (`id`, `title`, `university_id`, `provider_id`, `event_type`, `date`, `time`, `location`, `mode`, `speaker`, `banner`, `description`, `registration_link`, `created_at`) VALUES
-(1, 'Global Higher Education Admissions Summit & Scholarship Fair', 1, 2, 'Seminar', '2025-04-12', '14:00 - 17:30 UTC', 'Virtual Auditorium 1', 'Online', 'Prof. Kenneth Low (NUS Admissions) & Dr. Vance', 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=700&auto=format&fit=crop&q=80', 'Meet regional deans and admissions officers from top Asian and European institutions. Learn how to write winning personal statements and secure departmental funding.', '#register-summit', '2025-02-12 10:00:00'),
-(2, 'Hands-on PyTorch & Deep Learning Architecture Workshop', NULL, 4, 'Workshop', '2025-04-20', '10:00 - 15:00 UTC', 'Google Meet Interactive Session', 'Online', 'Dr. Aris Thorne (MIT Lab Principal Scientist)', 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=700&auto=format&fit=crop&q=80', 'Code and fine-tune transformer models using Google Colab GPUs. Includes step-by-step code repo and certification upon submission of mini-project.', '#register-dl', '2025-02-20 11:30:00'),
-(3, 'University of Melbourne Virtual Open Day & Faculty Meet', 2, 2, 'Open Day', '2025-05-03', '08:00 - 13:00 AEST', 'Parkville Campus & Live Broadcast', 'Hybrid', 'Faculty Deans & Student Ambassadors', 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=700&auto=format&fit=crop&q=80', 'Experience virtual campus tours, consult degree advisors across Biomedicine, Law, and Software Systems, and receive instant preliminary credential checks.', '#register-unimelb', '2025-02-25 15:00:00'),
-(4, 'Tech Career Connect: Global Internships & Early Careers Showcase', NULL, 4, 'Career Fair', '2025-05-18', '13:00 - 18:00 UTC', 'EduConnect Expo Hall', 'Online', 'Recruiters from Top Global Tech Enterprises', 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=700&auto=format&fit=crop&q=80', 'Direct 1-on-1 breakout sessions with hiring managers looking for junior engineers, product interns, UI designers, and quantitative analysts.', '#register-career', '2025-03-01 09:15:00');
-
--- Applications
-INSERT INTO `applications` (`id`, `opportunity_id`, `student_id`, `student_name`, `student_email`, `resume_link`, `statement`, `status`, `applied_at`) VALUES
-(1, 1, 1, 'Alex Johnson', 'student@test.com', 'https://example.com/resumes/alex-johnson-cv.pdf', 'I have built multiple client projects with JavaScript and wish to master backend Python system design and database normalization.', 'under_review', '2025-02-14 14:20:00'),
-(2, 2, 1, 'Alex Johnson', 'student@test.com', 'https://example.com/resumes/alex-johnson-cv.pdf', 'Representing top 3% percentile in computer engineering with high dedication to regional educational technology access.', 'pending', '2025-02-18 09:15:00'),
-(3, 3, 5, 'Liam O\'Connor', 'liam.learner@test.com', 'https://example.com/resumes/liam-ml.pdf', 'Authored 1 preprint on efficient transformer attention mechanisms and contributed to open-source PyTorch libraries.', 'accepted', '2025-02-08 16:40:00');
-
--- Saved Opportunities (Bookmarks)
-INSERT INTO `saved_opportunities` (`id`, `student_id`, `opportunity_id`, `saved_at`) VALUES
-(1, 1, 3, '2025-02-12 18:00:00'),
-(2, 1, 5, '2025-02-19 11:30:00');
-
--- Reset Auto-Increment to start safely after pre-populated records
-ALTER TABLE `users` AUTO_INCREMENT = 10;
-ALTER TABLE `categories` AUTO_INCREMENT = 20;
-ALTER TABLE `universities` AUTO_INCREMENT = 20;
-ALTER TABLE `university_intakes` AUTO_INCREMENT = 20;
-ALTER TABLE `university_news` AUTO_INCREMENT = 200;
-ALTER TABLE `opportunities` AUTO_INCREMENT = 20;
-ALTER TABLE `events` AUTO_INCREMENT = 20;
-ALTER TABLE `applications` AUTO_INCREMENT = 20;
-ALTER TABLE `saved_opportunities` AUTO_INCREMENT = 20;
-
+-- Re-enable foreign key checks
 SET FOREIGN_KEY_CHECKS = 1;
 
--- =====================================================================
--- End of EduConnect Database Dump
--- =====================================================================
+-- ==========================================================
+-- SEED DATA FOR DEMO & TESTING
+-- Passwords below are hashed using standard bcrypt (password_hash)
+-- admin123 => $2y$10$QO90Q1j8u96Yx.2Hq1d6iO7qKzFjF9Wf2Z3K2Y6m8t0n5u9v7x4Wy
+-- ==========================================================
+
+INSERT INTO `categories` (`id`, `name`, `slug`, `description`) VALUES
+(1, 'Scholarships', 'scholarships', 'Financial aid, merit grants, and tuition waivers.'),
+(2, 'Classes & Courses', 'classes-courses', 'Academic programs, specialized courses, and certifications.'),
+(3, 'Seminars', 'seminars', 'Scholarly presentations and panel discussions by experts.'),
+(4, 'Workshops', 'workshops', 'Hands-on practical training and skill-building labs.'),
+(5, 'Events', 'events', 'Conferences, networking summits, and academic symposia.'),
+(6, 'Internships', 'internships', 'Practical industry attachments and research fellowships.'),
+(7, 'Volunteer Opportunities', 'volunteer-opportunities', 'Civic engagement, community service, and youth outreach.'),
+(8, 'Competitions', 'competitions', 'Academic challenges, hackathons, and innovation awards.'),
+(9, 'Other', 'other', 'Special educational initiatives and auxiliary programs.');
+
+-- Users
+-- Passwords:
+-- admin@educonnect.org => admin123
+-- oxford@educonnect.org => provider123
+-- mit@educonnect.org => provider123
+-- techforward@educonnect.org => provider123
+-- learner@educonnect.org => learner123
+INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `phone`, `status`, `email_verified`, `verification_code`, `created_at`) VALUES
+(1, 'System Administrator', 'admin@educonnect.org', '$2y$10$wE8wY.h4Z50n8kGzNqIe/.s9iO07mRfq6a5xO9zH1c3sN1fL5q2iW', 'admin', '+1 555-0100', 'active', 1, NULL, NOW()),
+(2, 'University of Oxford Admissions', 'oxford@educonnect.org', '$2y$10$r9d8e7c6b5a4f3e2d1c0b.h9j8k7l6m5n4o3p2q1r0s9t8u7v6w5x', 'provider', '+44 1865 270000', 'active', 1, NULL, NOW()),
+(3, 'MIT Registrar Office', 'mit@educonnect.org', '$2y$10$r9d8e7c6b5a4f3e2d1c0b.h9j8k7l6m5n4o3p2q1r0s9t8u7v6w5x', 'provider', '+1 617-253-1000', 'active', 1, NULL, NOW()),
+(4, 'Tech Forward Global NGO', 'techforward@educonnect.org', '$2y$10$r9d8e7c6b5a4f3e2d1c0b.h9j8k7l6m5n4o3p2q1r0s9t8u7v6w5x', 'provider', '+1 415-555-0199', 'active', 1, NULL, NOW()),
+(5, 'Aung Min Khant', 'learner@educonnect.org', '$2y$10$1A2B3C4D5E6F7G8H9I0J1.k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z', 'learner', '+95 912345678', 'active', 1, NULL, NOW());
+
+-- Providers
+INSERT INTO `providers` (`id`, `user_id`, `provider_type`, `name`, `logo`, `country`, `city`, `address`, `website`, `description`, `contact_email`, `contact_phone`) VALUES
+(1, 2, 'university', 'University of Oxford', 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=300', 'United Kingdom', 'Oxford', 'Wellington Square, Oxford OX1 2JD', 'https://www.ox.ac.uk', 'The University of Oxford is a collegiate research university in Oxford, England, offering world-class research and academic mentorship.', 'admissions@ox.ac.uk', '+44 1865 270000'),
+(2, 3, 'university', 'Massachusetts Institute of Technology (MIT)', 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=300', 'United States', 'Cambridge', '77 Massachusetts Ave, Cambridge, MA 02139', 'https://www.mit.edu', 'MIT is a world-renowned private land-grant research institute devoted to advancing technology, scientific excellence, and global innovation.', 'admissions@mit.edu', '+1 617-253-1000'),
+(3, 4, 'organization', 'Tech Forward Initiative', 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=300', 'United States', 'San Francisco', '500 Howard Street, Suite 400, San Francisco, CA', 'https://techforward.org', 'A global non-profit organization focused on accelerating technology education, developer fellowships, and social impact programs.', 'contact@techforward.org', '+1 415-555-0199');
+
+-- Universities (provider_type = 'university')
+INSERT INTO `universities` (`id`, `provider_id`, `name`, `logo`, `country`, `city`, `address`, `website`, `description`, `established_year`, `institution_type`, `qs_world_ranking`, `tuition_min`, `tuition_max`, `currency`, `is_featured`, `featured_order`, `featured_at`, `featured_by`, `is_verified`, `verified_at`, `verified_by`) VALUES
+(1, 1, 'University of Oxford', 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=300', 'United Kingdom', 'Oxford', 'Wellington Square, Oxford OX1 2JD', 'https://www.ox.ac.uk', 'Historic collegiate university recognized worldwide for academic rigor, groundbreaking scholarship, and vibrant residential colleges.', 1096, 'Collegiate', 3, 28000.00, 44000.00, 'GBP', 1, 1, NOW(), 1, 1, NOW(), 1),
+(2, 2, 'Massachusetts Institute of Technology (MIT)', 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=300', 'United States', 'Cambridge', '77 Massachusetts Ave, Cambridge, MA 02139', 'https://www.mit.edu', 'Pioneering scientific breakthroughs, engineering mastery, and economic innovation across five distinguished schools and one college.', 1861, 'Research', 1, 57000.00, 62000.00, 'USD', 1, 2, NOW(), 1, 1, NOW(), 1);
+
+-- University Intakes
+INSERT INTO `university_intakes` (`id`, `university_id`, `intake_name`, `start_date`, `application_deadline`, `description`, `application_url`) VALUES
+(1, 1, 'Michaelmas Term 2026', '2026-10-04', '2026-10-15', 'Autumn undergraduate and postgraduate entry intake across humanities, science, and social sciences.', 'https://www.ox.ac.uk/admissions'),
+(2, 1, 'Hilary Term 2027', '2027-01-10', '2026-11-30', 'Winter research fellowship intake for postgraduate visiting researchers and doctoral candidates.', 'https://www.ox.ac.uk/admissions'),
+(3, 2, 'Fall Semester 2026', '2026-09-02', '2026-09-25', 'Regular decision and early action intake for STEM undergraduate and master of science cohorts.', 'https://mitadmissions.org'),
+(4, 2, 'Spring Semester 2027', '2027-02-01', '2026-11-15', 'Specialized transfer and graduate research term focusing on AI and bio-engineering.', 'https://mitadmissions.org');
+
+-- Opportunities
+INSERT INTO `opportunities` (`id`, `provider_id`, `university_id`, `category_id`, `title`, `description`, `location`, `country`, `start_date`, `end_date`, `application_deadline`, `eligibility`, `requirements`, `available_slots`, `external_application_url`, `status`) VALUES
+(1, 1, 1, 1, 'Clarendon International Excellence Scholarship', 'Fully funded graduate scholarship covering tuition fees and a generous annual living grant for outstanding master and DPhil scholars.', 'Oxford Campus', 'United Kingdom', '2026-10-01', '2027-09-30', '2026-10-15', 'High academic achievement (First Class Honours or GPA >= 3.8/4.0). Open to all nationalities.', 'Transcripts, 3 references, statement of academic purpose, curriculum vitae.', 140, 'https://www.ox.ac.uk/clarendon', 'open'),
+(2, 1, 1, 3, 'Symposium on Computational Ethics & AI Governance', 'A 3-day distinguished seminar bringing together philosophers, computer scientists, and policymakers to debate artificial intelligence ethics.', 'Sheldonian Theatre', 'United Kingdom', '2026-11-12', '2026-11-14', '2026-10-20', 'Open to undergraduate and graduate researchers in Computer Science and Philosophy.', 'Abstract submission or verified academic affiliation.', 250, 'https://www.ox.ac.uk/events/ai-ethics', 'open'),
+(3, 2, 2, 1, 'MIT Presidential STEM Research Fellowship', 'Comprehensive fellowship supporting innovative first-year graduate students pursuing research across engineering and computing disciplines.', 'Cambridge Campus', 'United States', '2026-09-01', '2027-08-31', '2026-09-28', 'Admitted graduate students demonstrating outstanding investigative creativity in STEM fields.', 'Research statement, GRE scores (if applicable), 3 faculty recommendations.', 50, 'https://gradadmissions.mit.edu/fellowships', 'open'),
+(4, 2, 2, 4, 'Hands-on Quantum Computing Architecture Workshop', 'Intensive 5-day laboratory workshop programming superconducting qubits and exploring quantum error mitigation algorithms.', 'Stata Center', 'United States', '2026-10-20', '2026-10-24', '2026-10-05', 'Proficiency in linear algebra and Python. Suitable for upper-year undergraduates.', 'GitHub portfolio link and personal motivation brief.', 40, 'https://mit.edu/workshops/quantum', 'open'),
+(5, 3, NULL, 6, 'Global Open-Source Tech Fellowship 2026', 'A 6-month remote fellowship offering mentorship, stipends, and real-world project contributions to global civic technology platforms.', 'Remote / Hybrid', 'United States', '2026-11-01', '2027-04-30', '2026-10-25', 'Intermediate web development knowledge (HTML/JS/PHP/Python/Git). Strong passion for social good.', 'Submit link to portfolio, past projects, and short essay.', 25, 'https://techforward.org/fellowship', 'open');
+
+-- Learner Profile
+INSERT INTO `learner_profiles` (`id`, `user_id`, `profile_photo`, `headline`, `bio`, `date_of_birth`, `gender`, `country`, `city`, `phone`, `website`, `linkedin_url`, `career_goal`, `education_goal`, `interests`, `profile_visibility`) VALUES
+(1, 5, 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300', 'Computer Science Researcher & Full-Stack Developer', 'Driven learner and computer science scholar committed to developing sustainable software architectures and high-impact educational platforms.', '2002-05-14', 'Male', 'Myanmar', 'Yangon', '+95 912345678', 'https://aungmin.dev', 'https://linkedin.com/in/aungmin', 'Aspire to lead innovative open-source educational initiatives and pursue postgraduate research at an elite global institution.', 'Obtain a Master of Science in Advanced Computing with full scholarship funding.', 'Artificial Intelligence, Distributed Systems, Web Performance, Youth Education', 'public');
+
+-- Learner Education
+INSERT INTO `learner_education` (`id`, `learner_id`, `institution_name`, `education_level`, `field_of_study`, `start_date`, `end_date`, `grade`, `description`) VALUES
+(1, 1, 'University of Information Technology', 'Bachelor of Computer Science', 'Software Engineering & Systems', '2020-11-01', '2024-08-30', 'GPA 3.92 / 4.0 (First Class)', 'Specialized in distributed computing, data engineering, and secure system design. Dean Honour Roll 2022-2024.');
+
+-- Learner Skills
+INSERT INTO `learner_skills` (`id`, `learner_id`, `skill_name`, `skill_level`) VALUES
+(1, 1, 'Full-Stack Architecture (PHP / MySQL / JS)', 'Expert'),
+(2, 1, 'RESTful API Engineering & Prepared Statements', 'Expert'),
+(3, 1, 'System Performance & Low-Latency Caching', 'Advanced'),
+(4, 1, 'Responsive UI/UX & Accessible Design', 'Advanced'),
+(5, 1, 'Data Structures & Algorithms', 'Advanced');
+
+-- Learner Achievements
+INSERT INTO `learner_achievements` (`id`, `learner_id`, `title`, `description`, `date`, `organization`) VALUES
+(1, 1, 'National Youth Technology Innovation Award 2024', 'Awarded 1st place for designing an offline-capable educational resource distribution tool for regional schools.', '2024-03-15', 'Ministry of Science & Technology');
+
+-- Learner Projects
+INSERT INTO `learner_projects` (`id`, `learner_id`, `title`, `description`, `role`, `technologies`, `project_url`, `start_date`, `end_date`) VALUES
+(1, 1, 'EduConnect Cross-Platform Architecture', 'Designed and implemented full-stack educational portal with secure OTP authentication, dynamic provider workflows, and real-time audit trail.', 'Lead Architect', 'PHP, MySQL, Bootstrap, Vanilla JS', 'https://github.com/example/educonnect', '2024-01-10', '2024-06-20');
+
+-- Learner Certificates
+INSERT INTO `learner_certificates` (`id`, `learner_id`, `certificate_name`, `issuing_organization`, `issue_date`, `credential_url`, `description`) VALUES
+(1, 1, 'Certified Secure Application Developer', 'Global Technology Institute', '2023-09-12', 'https://gti.org/verify/CSAD-98214', 'Rigorous certification covering SQL injection prevention, role-based authorization, and session security.');
+
+-- Learner Languages
+INSERT INTO `learner_languages` (`id`, `learner_id`, `language`, `proficiency`) VALUES
+(1, 1, 'English', 'Fluent'),
+(2, 1, 'Burmese', 'Native/Bilingual');
+
+-- Initial Audit Log
+INSERT INTO `audit_logs` (`id`, `admin_user_id`, `action`, `entity_type`, `entity_id`, `description`, `old_values`, `new_values`, `ip_address`, `created_at`) VALUES
+(1, 1, 'FEATURE', 'university', 1, 'Admin John featured University of Oxford on homepage.', '{"is_featured":0}', '{"is_featured":1}', '127.0.0.1', NOW()),
+(2, 1, 'VERIFY', 'university', 1, 'Admin John verified University of Oxford with blue platform badge.', '{"is_verified":0}', '{"is_verified":1}', '127.0.0.1', NOW()),
+(3, 1, 'FEATURE', 'university', 2, 'Admin John featured Massachusetts Institute of Technology (MIT).', '{"is_featured":0}', '{"is_featured":1}', '127.0.0.1', NOW()),
+(4, 1, 'VERIFY', 'university', 2, 'Admin John verified Massachusetts Institute of Technology (MIT) with blue platform badge.', '{"is_verified":0}', '{"is_verified":1}', '127.0.0.1', NOW());

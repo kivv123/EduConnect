@@ -1,213 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/png" href="educonnect.jpg">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>System Administration - EduConnect</title>
-  <meta name="description" content="Super administrator dashboard for moderating opportunities, users, and educational partners." />
-
-  <!-- Bootstrap 5.3.3 CSS & Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-
-  <!-- Custom Styles -->
-  <link rel="stylesheet" href="../css/style.css" />
-  <link rel="stylesheet" href="../css/dashboard.css" />
+  <title>Admin Governance & Audit Portal - EduConnect</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/educonnect/assets/css/style.css" />
+  <link rel="stylesheet" href="/educonnect/assets/css/responsive.css" />
 </head>
-<body class="bg-light">
+<body>
+  <nav class="navbar navbar-expand-lg navbar-edu" id="edu-main-nav"></nav>
 
-  <!-- Dynamic Navigation Bar -->
-  <div id="mainNavbar"></div>
-
-  <div class="dashboard-layout">
-    <!-- Sidebar Navigation -->
-    <aside class="dashboard-sidebar">
-      <div class="p-3 border-bottom d-flex align-items-center gap-2">
-        <span class="badge bg-danger text-uppercase px-2.5 py-1 text-xs fw-semibold">Super Admin</span>
-      </div>
-
-      <div class="sidebar-heading">Platform Governance</div>
-      <a href="admin-dashboard.html" class="sidebar-nav-item active">
-        <i class="bi bi-shield-shaded"></i>
-        <span>Admin Dashboard</span>
-      </a>
-      <a href="#usersSection" class="sidebar-nav-item">
-        <i class="bi bi-people-fill"></i>
-        <span>User Accounts</span>
-      </a>
-      <a href="#moderationSection" class="sidebar-nav-item">
-        <i class="bi bi-file-earmark-lock2"></i>
-        <span>Opportunity Moderation</span>
-      </a>
-      <a href="opportunities.html" class="sidebar-nav-item">
-        <i class="bi bi-grid"></i>
-        <span>Public Portal</span>
-      </a>
-
-      <div class="sidebar-heading mt-3">Account</div>
-      <a href="profile.html" class="sidebar-nav-item">
-        <i class="bi bi-gear"></i>
-        <span>Admin Settings</span>
-      </a>
-      <button onclick="AuthService.logout()" class="sidebar-nav-item border-0 bg-transparent text-danger w-100 text-start">
-        <i class="bi bi-box-arrow-right text-danger"></i>
-        <span>Sign Out</span>
-      </button>
-
-      <div class="mt-auto p-3 m-3 bg-light rounded border text-xs text-secondary">
-        <div class="fw-bold text-dark mb-1"><i class="bi bi-server text-danger me-1"></i>PHP Admin Endpoints</div>
-        Interacts with <code>api/admin/users.php</code> and <code>api/admin/moderation.php</code>.
-      </div>
-    </aside>
-
-    <!-- Main Workspace -->
-    <main class="dashboard-main">
-      
-      <!-- Top Title -->
-      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <main class="py-5">
+    <div class="container">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
         <div>
-          <h2 class="fw-bold text-dark mb-1">EduConnect Governance Console</h2>
-          <p class="text-secondary small mb-0">System-wide surveillance, access control, and opportunity moderation.</p>
+          <h2 class="fw-bold m-0">Admin Governance Portal</h2>
+          <p class="text-secondary small m-0">Platform overview, university moderation, verification badges, and real-time audit logs.</p>
         </div>
-        <div class="d-flex gap-2">
-          <button class="btn btn-outline-secondary btn-sm" onclick="window.location.reload()">
-            <i class="bi bi-arrow-clockwise me-1"></i>Refresh Data
+        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill fw-semibold">
+          🛡️ Elevated Admin Session
+        </span>
+      </div>
+
+      <!-- Live Statistics from MySQL -->
+      <div class="row g-3 mb-5">
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card-edu p-3">
+            <span class="text-muted small">Accredited Universities</span>
+            <h3 class="fw-bold text-primary m-0 mt-1" id="adm-stat-univs">0</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card-edu p-3">
+            <span class="text-muted small">Registered Providers</span>
+            <h3 class="fw-bold text-success m-0 mt-1" id="adm-stat-provs">0</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card-edu p-3">
+            <span class="text-muted small">Active Opportunities</span>
+            <h3 class="fw-bold text-info m-0 mt-1" id="adm-stat-opps">0</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card-edu p-3">
+            <span class="text-muted small">Total Applications</span>
+            <h3 class="fw-bold text-warning m-0 mt-1" id="adm-stat-apps">0</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card-edu p-3">
+            <span class="text-muted small">Learners Enrolled</span>
+            <h3 class="fw-bold text-secondary m-0 mt-1" id="adm-stat-learners">0</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card-edu p-3">
+            <span class="text-muted small">Featured Institutions</span>
+            <h3 class="fw-bold text-warning m-0 mt-1" id="adm-stat-featured">0</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card-edu p-3">
+            <span class="text-muted small">Verified Badges</span>
+            <h3 class="fw-bold text-primary m-0 mt-1" id="adm-stat-verified">0</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <ul class="nav nav-pills mb-4" id="adminTabs" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-adm-univs">
+            University Moderation & Badges
           </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-adm-users" onclick="EduAdmin.loadUsers()">
+            User Governance & Directory
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-adm-audit">
+            Audit Logs & Activity History
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- University Moderation Tab -->
+        <div class="tab-pane fade show active" id="tab-adm-univs">
+          <div class="card-edu p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="fw-bold m-0">Institutions Directory</h5>
+              <span class="small text-muted">Featured and Verified badges operate independently.</span>
+            </div>
+            <div class="table-responsive-custom">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr class="table-light">
+                    <th>University</th>
+                    <th>Provider</th>
+                    <th>QS Rank</th>
+                    <th>Tuition Range</th>
+                    <th>Featured (Home)</th>
+                    <th>Verified Badge</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-univs-tbody">
+                  <tr><td colspan="7" class="text-center py-4 text-muted">Loading universities...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Governance & Directory Tab -->
+        <div class="tab-pane fade" id="tab-adm-users">
+          <div class="card-edu p-4">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-3">
+              <div>
+                <h5 class="fw-bold m-0">User Governance & Directory</h5>
+                <p class="text-secondary small m-0">Oversee active accounts across Learners, Providers, and Administrators.</p>
+              </div>
+              <div class="d-flex gap-2">
+                <input type="text" id="adm-users-search" class="form-control-edu form-control-sm" placeholder="Filter by name/email..." oninput="EduAdmin.loadUsers()" />
+                <select id="adm-users-role" class="form-select-edu form-select-sm" onchange="EduAdmin.loadUsers()">
+                  <option value="all">All Roles</option>
+                  <option value="learner">Learner</option>
+                  <option value="provider">Provider</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-responsive-custom">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr class="table-light">
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-users-tbody">
+                  <tr><td colspan="6" class="text-center py-4 text-muted">Loading user accounts...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Logs Tab -->
+        <div class="tab-pane fade" id="tab-adm-audit">
+          <div class="card-edu p-4">
+            <div class="row g-3 align-items-center mb-3">
+              <div class="col-md-4">
+                <input type="text" id="audit-search" class="form-control-edu" placeholder="Search by description or admin name..." />
+              </div>
+              <div class="col-md-3">
+                <select id="audit-action-filter" class="form-select-edu">
+                  <option value="all">All Actions</option>
+                  <option value="FEATURE">FEATURE</option>
+                  <option value="UNFEATURE">UNFEATURE</option>
+                  <option value="VERIFY">VERIFY</option>
+                  <option value="UNVERIFY">UNVERIFY</option>
+                  <option value="UPDATE_UNIVERSITY">UPDATE_UNIVERSITY</option>
+                  <option value="ACTIVATE_USER">ACTIVATE_USER</option>
+                  <option value="SUSPEND_USER">SUSPEND_USER</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <select id="audit-entity-filter" class="form-select-edu">
+                  <option value="all">All Entities</option>
+                  <option value="university">University</option>
+                  <option value="provider">Provider</option>
+                  <option value="opportunity">Opportunity</option>
+                  <option value="user">User</option>
+                </select>
+              </div>
+              <div class="col-md-2 text-end">
+                <button class="btn-edu-secondary btn-edu-sm w-100" onclick="EduAdmin.exportAuditLogsCsv()">
+                  📥 Export CSV
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive-custom">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr class="table-light">
+                    <th>Timestamp</th>
+                    <th>Admin</th>
+                    <th>Action</th>
+                    <th>Entity</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-audit-tbody">
+                  <tr><td colspan="5" class="text-center py-4 text-muted">Loading audit records...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+  </main>
 
-      <!-- High-Level Metrics -->
-      <div class="row g-3 mb-4">
-        <div class="col-lg-3 col-sm-6">
-          <div class="stat-card">
-            <div>
-              <div class="stat-label">Registered Accounts</div>
-              <div class="stat-value" id="adminStatUsers">0</div>
-            </div>
-            <div class="stat-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-people"></i></div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-sm-6">
-          <div class="stat-card">
-            <div>
-              <div class="stat-label">Verified Providers</div>
-              <div class="stat-value" id="adminStatProviders">0</div>
-            </div>
-            <div class="stat-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-building-check"></i></div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-sm-6">
-          <div class="stat-card">
-            <div>
-              <div class="stat-label">Published Opportunities</div>
-              <div class="stat-value" id="adminStatOpportunities">0</div>
-            </div>
-            <div class="stat-icon bg-success bg-opacity-10 text-success"><i class="bi bi-award"></i></div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-sm-6">
-          <div class="stat-card">
-            <div>
-              <div class="stat-label">Submitted Applications</div>
-              <div class="stat-value" id="adminStatApplications">0</div>
-            </div>
-            <div class="stat-icon bg-info bg-opacity-10 text-info"><i class="bi bi-send-check"></i></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- User Management Module -->
-      <div class="edu-table-container shadow-sm mb-5" id="usersSection">
-        <div class="p-3 border-bottom d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 bg-white">
-          <div class="fw-bold text-dark fs-6 d-flex align-items-center gap-2">
-            <i class="bi bi-person-gear text-primary"></i>
-            <span>User & Account Management</span>
-          </div>
-
-          <div class="d-flex align-items-center gap-2">
-            <input type="text" class="form-control form-control-sm" id="adminUserSearch" placeholder="Search name or email..." style="max-width: 200px;">
-            <select class="form-select form-select-sm" id="adminUserRoleFilter" style="max-width: 140px;">
-              <option value="all">All Roles</option>
-              <option value="learner">Learners</option>
-              <option value="provider">Providers</option>
-              <option value="admin">Admins</option>
-            </select>
-          </div>
-        </div>
-        <div class="table-responsive">
-          <table class="table edu-table mb-0">
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Role</th>
-                <th>Affiliation</th>
-                <th>Status</th>
-                <th class="text-end">Account Actions</th>
-              </tr>
-            </thead>
-            <tbody id="adminUsersTable">
-              <!-- Rendered via js/pages/dashboard.js -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Opportunity Moderation Module -->
-      <div class="edu-table-container shadow-sm mb-4" id="moderationSection">
-        <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-white">
-          <div class="fw-bold text-dark fs-6 d-flex align-items-center gap-2">
-            <i class="bi bi-shield-exclamation text-danger"></i>
-            <span>Opportunity Moderation & Safety</span>
-          </div>
-          <span class="badge bg-light text-secondary border small">Live Platform Postings</span>
-        </div>
-        <div class="table-responsive">
-          <table class="table edu-table mb-0">
-            <thead>
-              <tr>
-                <th>Opportunity Title & Host</th>
-                <th>Type</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th class="text-end">Moderator Action</th>
-              </tr>
-            </thead>
-            <tbody id="adminOpsTable">
-              <!-- Rendered via js/pages/dashboard.js -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </main>
-  </div>
-
-  <!-- Dynamic Footer -->
-  <div id="mainFooter"></div>
-
-  <!-- Bootstrap 5 JS Bundle -->
+  <div id="edu-toast-container"></div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Script Pipeline -->
-  <script src="../js/data/mock-users.js"></script>
-  <script src="../js/data/mock-categories.js"></script>
-  <script src="../js/data/mock-opportunities.js"></script>
-  <script src="../js/data/mock-universities.js"></script>
-  <script src="../js/data/mock-events.js"></script>
-  <script src="../js/data/mock-applications.js"></script>
-
-  <script src="../js/core/config.js"></script>
-  <script src="../js/core/storage.js"></script>
-  <script src="../js/core/router.js"></script>
-  <script src="../js/services/auth-service.js"></script>
-  <script src="../js/services/user-service.js"></script>
-  <script src="../js/services/opportunity-service.js"></script>
-  <script src="../js/services/university-service.js"></script>
-  <script src="../js/services/event-service.js"></script>
-  <script src="../js/services/application-service.js"></script>
-
-  <script src="../js/core/app.js"></script>
-  <script src="../js/pages/dashboard.js"></script>
+  <script src="/educonnect/assets/js/api.js"></script>
+  <script src="/educonnect/assets/js/admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      EduAdmin.init();
+    });
+  </script>
 </body>
 </html>
