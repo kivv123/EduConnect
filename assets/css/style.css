@@ -926,17 +926,6 @@ a:hover {
   }
 }
 
-
-/* ==========================================================================
-   GLOBAL THEME CONSISTENCY LAYER
-   Re-themes raw Bootstrap utility & component classes (used directly in
-   HTML pages and injected dynamically by the JS templates) so every part
-   of the site — including modals, dropdowns, tables and badges rendered
-   at runtime — follows the same --bg-*/--text-*/--border-color system as
-   the rest of the app, in both light and dark mode. No HTML/JS/PHP files
-   are modified; this section only intercepts existing class names.
-   ========================================================================== */
-
 /* --- Neutralize hardcoded Bootstrap text/background utilities --- */
 .text-muted { color: var(--text-muted) !important; }
 .text-secondary { color: var(--text-secondary) !important; }

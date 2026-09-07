@@ -500,7 +500,6 @@ const EduProvider = (function () {
     openCreateOppModal,
     openEditOppModal,
     saveOpportunity,
-    saveNewOpportunity,
     deleteOpportunity,
     loadIntakes,
     openCreateIntakeModal,
